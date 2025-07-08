@@ -107,18 +107,16 @@ The simulation was tested with a two-body gravitational system to verify correct
      ```cmd
      python plot_nbody_3d.py
      ```
-   - An animated 3D plot will display the trajectories of the bodies.
+   - An interactive animated 3D plot will display, showing body trajectories (colored lines and dots) and the center of mass (dashed black line).
 
 ### Output
 
 - **Console Output**: Center of mass positions and final body positions are printed to the console.
 - **positions.txt**: Contains x, y, z coordinates for each body at each time step.
-- **3D Visualization**: Shows elliptical orbits in the x-y plane (z = 0), with the system drifting along the y-axis. The plot is interactive, allowing rotation to view the trajectories.
+- **3D Visualization**: Interactive animated plot showing helical trajectories for each body (automatically detected from positions.txt), a center of mass path, and a dynamic title. Rotate and zoom using the mouse.
 
 ## Future Improvements
 
-- **Circular Orbit Test**: Use a velocity of 3.655e4 m/s for Body 2 to test a circular orbit, verifying exact position return after one period.
-- **3D Motion**: Add z-velocity (e.g., 1.0e4 m/s for Body 2) to test full 3D orbits.
 - **Performance Optimization**: Adjust `threadsPerBlock` or implement a Barnes-Hut algorithm for larger systems.
 - **Video Output**: Save the animation as an MP4 using Matplotlib’s `animation.writers`.
 - **Real-Time Visualization**: Explore OpenGL or SFML for real-time rendering in C++.
