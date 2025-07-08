@@ -37,23 +37,40 @@ for t in range(num_steps):
         y_data[i].append(positions[t][i][1])
         z_data[i].append(positions[t][i][2])
 
+# Calculate center of mass trajectory
+cm_x = np.mean(x_data, axis=0)
+cm_y = np.mean(y_data, axis=0)
+cm_z = np.mean(z_data, axis=0)
+
 # Set up the 3D plot
-fig = plt.figure()
+fig = plt.figure(figsize=(10, 8))
 ax = fig.add_subplot(111, projection='3d')
 ax.set_xlabel('X Position (m)')
 ax.set_ylabel('Y Position (m)')
 ax.set_zlabel('Z Position (m)')
-ax.set_title('3D N-Body Simulation Trajectories')
 
-# Set axis limits (adjust based on your data)
-ax.set_xlim(-1.5e11, 1.5e11)
-ax.set_ylim(-1.5e11, 1.5e11)
-ax.set_zlim(-1.5e11, 1.5e11)
+# Dynamically set axis limits based on data
+padding = 0.2  # 20% padding around data
+x_range = max(max(np.max(x_data) - np.min(x_data), np.max(cm_x) - np.min(cm_x)), 1e10)
+y_range = max(max(np.max(y_data) - np.min(y_data), np.max(cm_y) - np.min(cm_y)), 1e10)
+z_range = max(max(np.max(z_data) - np.min(z_data), np.max(cm_z) - np.min(cm_z)), 1e10)
+x_mid = (np.max(x_data) + np.min(x_data)) / 2
+y_mid = (np.max(y_data) + np.min(y_data)) / 2
+z_mid = (np.max(z_data) + np.min(z_data)) / 2
+ax.set_xlim(x_mid - x_range * (1 + padding) / 2, x_mid + x_range * (1 + padding) / 2)
+ax.set_ylim(y_mid - y_range * (1 + padding) / 2, y_mid + y_range * (1 + padding) / 2)
+ax.set_zlim(z_mid - z_range * (1 + padding) / 2, z_mid + z_range * (1 + padding) / 2)
 
-# Plot trajectories and points
-lines = [ax.plot([], [], [], 'o-', label=f'Body {i+1}')[0] for i in range(num_bodies)]
-points = [ax.plot([], [], [], 'o', ms=10)[0] for i in range(num_bodies)]
+# Plot trajectories and points with distinct colors
+colors = ['b', 'r', 'g', 'm', 'c']  # Blue, Red, Green, Magenta, Cyan
+lines = [ax.plot([], [], [], 'o-', label=f'Body {i+1}', color=colors[i % len(colors)])[0] for i in range(num_bodies)]
+points = [ax.plot([], [], [], 'o', ms=10, color=colors[i % len(colors)])[0] for i in range(num_bodies)]
+cm_line, = ax.plot([], [], [], 'k--', label='Center of Mass')  # Dashed black line
+cm_point, = ax.plot([], [], [], 'ko', ms=8)  # Black dot
 ax.legend()
+
+# Add title with time step
+title = ax.set_title('3D N-Body Simulation: Time Step 0')
 
 # Initialization function
 def init():
@@ -62,7 +79,12 @@ def init():
         line.set_3d_properties([])
         point.set_data([], [])
         point.set_3d_properties([])
-    return lines + points
+    cm_line.set_data([], [])
+    cm_line.set_3d_properties([])
+    cm_point.set_data([], [])
+    cm_point.set_3d_properties([])
+    title.set_text('3D N-Body Simulation: Time Step 0')
+    return lines + points + [cm_line, cm_point, title]
 
 # Animation update function
 def update(frame):
@@ -71,9 +93,15 @@ def update(frame):
         lines[i].set_3d_properties(z_data[i][:frame+1])
         points[i].set_data(x_data[i][frame], y_data[i][frame])
         points[i].set_3d_properties(z_data[i][frame])
-    return lines + points
+    cm_line.set_data(cm_x[:frame+1], cm_y[:frame+1])
+    cm_line.set_3d_properties(cm_z[:frame+1])
+    cm_point.set_data(cm_x[frame], cm_y[frame])
+    cm_point.set_3d_properties(cm_z[frame])
+    title.set_text(f'3D N-Body Simulation: Time Step {frame+1}')
+    return lines + points + [cm_line, cm_point, title]
 
 # Create animation
 ani = animation.FuncAnimation(fig, update, frames=num_steps, init_func=init, blit=False, interval=50)
 
+# Display the plot
 plt.show()
